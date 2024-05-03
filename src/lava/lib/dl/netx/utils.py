@@ -129,10 +129,11 @@ def optimize_weight_bits(weight: np.ndarray) -> Tuple[
     elif sign_mode == SYNAPSE_SIGN_MODE.EXCITATORY:
         scale = 255 / max_weight
 
-    scale_bits = np.floor(np.log2(scale)) + is_signed
-
+    
+    scale_bits = np.floor(np.log2(scale))
+    
     precision_found = False
-    n = 8
+    n = 8 # greatest common factor of form 2**n of weights
     while (precision_found is False) and (n > 0):
         roundingError = np.sum(
             np.abs(weight / (2**n) - np.round(weight / (2**n)))
@@ -142,17 +143,14 @@ def optimize_weight_bits(weight: np.ndarray) -> Tuple[
         else:
             n -= 1
 
-    n -= is_signed
-
-    num_weight_bits = 8 - scale_bits - n
-    weight_exponent = -scale_bits
-
-    weight = np.left_shift(weight.astype(np.int32), int(scale_bits))
+    num_weight_bits = 8 - scale_bits - n - is_signed
+    weight_exponent = int(n)
+    weight = np.right_shift(weight.astype(np.int32), weight_exponent)
 
     return (
         weight.astype(int),
         int(num_weight_bits),
-        int(weight_exponent),
+        weight_exponent,
         sign_mode
     )
 
