@@ -10,7 +10,7 @@ from lava.lib.dl.netx.utils import optimize_weight_bits, SYNAPSE_SIGN_MODE
 class TestOptimizeWeightBits(unittest.TestCase):
 
     def assertOptimizeWeightBitsEqual(self, actual, expected):
-        self.assertEqual(np.all(actual[0], expected[0]))  # Compare arrays
+        self.assertEqual(np.all(actual[0] == expected[0]))  # Compare arrays
         self.assertEqual(actual[1:], expected[1:])  # Compare other tuple elements
 
     def test_4Factor(self):
